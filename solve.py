@@ -1,4 +1,3 @@
-"""One time split, one baseline, one linear model, one metric."""
 from pathlib import Path
 import json
 import numpy as np
@@ -30,7 +29,7 @@ def make_model():
                                      OneHotEncoder(handle_unknown="ignore")),
          CATEGORICAL),
     ])
-    # Ridge is linear regression with a small fixed penalty; no tuning/search.
+
     return make_pipeline(preprocessing, Ridge(alpha=1.0, solver="lsqr"))
 
 
@@ -44,17 +43,17 @@ def main():
     assert labeled["load_id"].is_unique
     assert labeled["posted_rate"].notna().all()
 
-    # Step 1: understand the baseline before fitting another model.
+
     baseline_price = float(train["posted_rate"].median())
     baseline_mae = mean_absolute_error(
         test["posted_rate"], np.full(len(test), baseline_price))
     print(f"Baseline: always predict ${baseline_price:,.2f}")
     print(f"Baseline July-October MAE: ${baseline_mae:,.2f}")
 
-    # Step 2: preprocessing learns statistics from January-June only.
+
     model = make_model()
     model.fit(features(train), train["posted_rate"])
-    # Positive rates are required by the supplied scorer.
+
     model_prediction = np.maximum(1.0, model.predict(features(test)))
     model_mae = mean_absolute_error(test["posted_rate"], model_prediction)
     print(f"Linear model July-October MAE: ${model_mae:,.2f}")
@@ -74,8 +73,8 @@ def main():
         "development_max_rate": float(labeled["posted_rate"].max()),
     }
 
-    # Evaluation is finished. Refit the winner on all labeled development data
-    # to predict November/December. This does not change the reported test MAE.
+
+
     if winner == "linear model":
         final_model = make_model()
         final_model.fit(features(labeled), labeled["posted_rate"])

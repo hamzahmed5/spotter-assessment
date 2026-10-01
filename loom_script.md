@@ -1,45 +1,68 @@
-# Simple 2-3 minute recording script
+# Loom video script - about 2 minutes 45 seconds
 
-## 0:00-0:30 - The task and data
+Read the quoted text. The "Show" lines are screen directions, not spoken text.
+Open solve.py, metrics.json, validation_predictions.csv, and the December chart
+before recording. Speak slowly and use your own wording where it feels natural.
 
-"I built a simple freight-price prediction solution. There are 48,000 labeled
-loads covering January through October 2025. We need to predict 12,000 loads
-from November and create a December chart for one fixed route.
+## 0:00-0:30 - Task and data
 
-There are 300 missing weights and 374 missing market indices. There are no
-missing target prices or duplicate load IDs. I kept extreme prices because
-I had no evidence they were incorrect."
+Show: the GitHub repository, then metrics.json.
 
-## 0:30-1:00 - Split and missing values
+"Hi, this is my Spotter freight-rate assessment. I kept the solution simple:
+one time split, one baseline, one additional model, and one error metric.
 
-Show the split in solve.py.
+The data has 48,000 labeled loads from January to October 2025. There are
+300 missing weights and 374 missing market indices. There are no duplicate
+load IDs or missing target prices. I kept extreme prices because I had no
+evidence that they were wrong."
+
+## 0:30-1:00 - Split and cleaning
+
+Show: the train and test lines in main(), then make_model().
 
 "I trained on January through June and tested on July through October.
-This checks how well the model predicts later loads. I filled missing weights
-using only the training median, which was 31,400 pounds. The preprocessing
-pipeline learns all its statistics from training, so test data cannot leak in."
+That gives 28,806 training rows and 19,194 test rows. Using later dates for
+testing checks how the model performs on future loads.
 
-## 1:00-1:40 - Baseline and one model
+Missing weights are filled with the training median: 31,400 pounds.
+The pipeline also learns scaling and category encoding from training only.
+I fit it before predicting the test set, which prevents test-data leakage."
 
-Show metrics.json, then make_model in solve.py.
+## 1:00-1:35 - Baseline and model
 
-"First, I predicted the training median price, $2,022.89, for every test load.
-Its MAE was $1,138.46. MAE is the average absolute dollar error.
+Show: baseline_price and baseline_mae, then make_model().
 
-Next, I added one linear model called Ridge. It uses distance, weight, pickup,
-delivery, equipment, and weekday. I used these inputs because they are available
-in both prediction files. Its test MAE was $143.78, about 87 percent lower.
-I did not search across models or tune many settings."
+"First, my baseline predicts the training median price, 2,022 dollars and
+89 cents, for every load. Its MAE is 1,138 dollars and 46 cents.
+MAE means the average absolute dollar error. Lower is better.
 
-## 1:40-2:20 - Final files and limits
+Then I added one model: Ridge, which is linear regression with a small
+fixed penalty. It uses distance, weight, pickup, delivery, equipment, and
+weekday. I chose these inputs because they are also available for December.
+I did not run a model search or tune lots of settings."
 
-Show the output CSV and candidate_december.png.
+## 1:35-2:05 - Results and prediction code
 
-"After measuring test performance, I trained the selected model on all labeled
-January-through-October data and generated the final predictions. The supplied
-scorer accepted all 12,000 predictions and all 31 December rows.
+Show: metrics.json, then final_model.fit and the template mapping in solve.py.
 
-For December, only the date changes. My model uses weekday, so the chart repeats
-a weekly pattern. It does not model holiday or monthly demand changes. The
-November labels are hidden, so I cannot report the final November accuracy.
-The README has the commands to reproduce the solution."
+"The linear model's test MAE is 143 dollars and 78 cents, about 87 percent
+lower than the baseline. So I selected it.
+
+After evaluation, I refit it on all January-to-October labeled data to make
+the final predictions. This does not change the earlier test result.
+The code matches predictions to the template by load ID and saves the CSV."
+
+## 2:05-2:45 - Outputs and limitations
+
+Show: validation_predictions.csv, then scorer_results/candidate_december.png.
+
+"The supplied scorer accepted all 12,000 final predictions and all 31
+December rows. It checks the files and creates this chart; it does not
+measure the hidden November accuracy.
+
+For December, the route and other inputs stay fixed. Only the date changes.
+My model uses weekday, so the chart repeats a weekly pattern. It does not
+capture holiday demand or monthly seasonality.
+
+The public repository includes the code, dependencies, prediction CSV,
+report, and run instructions. Thank you."
